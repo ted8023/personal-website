@@ -1,0 +1,26 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import IdentityCard from '../components/IdentityCard.astro';
+import { site } from '../data/site';
+---
+<BaseLayout title="关于 · 阿秋">
+  <main class="mx-auto max-w-3xl px-5 py-12">
+    <h1 class="text-3xl font-black">关于阿秋 <span class="text-neutral-300">▸</span></h1>
+    <div class="mt-8 flex flex-col sm:flex-row gap-8 items-start">
+      <div class="shrink-0"><IdentityCard /></div>
+      <div>
+        <p class="leading-8 text-neutral-800">{site.about.intro}</p>
+        <div class="mt-4 flex flex-wrap gap-2">
+          {site.about.tags.map((t) => (
+            <span class="rounded-full bg-neutral-100 px-3 py-1 text-sm text-neutral-700">{t}</span>
+          ))}
+        </div>
+        <div class="mt-6 flex flex-wrap gap-4 text-sm">
+          {site.contact.map((c) => (
+            <a href={c.href} class="font-semibold text-build hover:underline">{c.label} ↗</a>
+          ))}
+        </div>
+      </div>
+    </div>
+  </main>
+</BaseLayout>

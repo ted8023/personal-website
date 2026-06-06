@@ -1,0 +1,43 @@
+---
+import { site } from '../data/site';
+const c = site.identityCard;
+---
+<button id="id-card" class="id-card group" aria-pressed="false" aria-label="翻看阿秋的身份卡">
+  <div class="id-inner">
+    <div class="id-face id-front">
+      <div class="text-5xl">{c.emoji}</div>
+      <div class="mt-2 text-sm font-bold tracking-wide">阿 秋</div>
+      <div class="mt-1 text-[11px] text-amber-600">▸ 点击翻牌</div>
+    </div>
+    <div class="id-face id-back">
+      <div class="text-[10px] tracking-widest text-amber-600">IDENTITY CARD</div>
+      <div class="mt-1 text-xs leading-5 text-left">
+        职业：{c.role}<br />
+        技能：{c.skills.join(' / ')}<br />
+        癖好：{c.hobby.join(' · ')}
+      </div>
+      <div class="mt-2 text-[10px] italic text-neutral-500">「{c.motto}」</div>
+    </div>
+  </div>
+</button>
+
+<style>
+  .id-card { width: 150px; height: 200px; perspective: 1000px; background: none; border: none; cursor: pointer; }
+  .id-inner { position: relative; width: 100%; height: 100%; transition: transform .6s; transform-style: preserve-3d; }
+  .id-card[aria-pressed="true"] .id-inner { transform: rotateY(180deg); }
+  .id-face {
+    position: absolute; inset: 0; backface-visibility: hidden;
+    border: 1.5px solid #d4af37; border-radius: 14px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 14px; background: linear-gradient(160deg, #fffdf5, #fff7e6);
+  }
+  .id-back { transform: rotateY(180deg); }
+</style>
+
+<script>
+  const card = document.getElementById('id-card');
+  card?.addEventListener('click', () => {
+    const flipped = card.getAttribute('aria-pressed') === 'true';
+    card.setAttribute('aria-pressed', String(!flipped));
+  });
+</script>
