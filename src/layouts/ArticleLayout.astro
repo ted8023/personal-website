@@ -1,0 +1,15 @@
+---
+import BaseLayout from './BaseLayout.astro';
+interface Props { title: string; meta: string; }
+const { title, meta } = Astro.props;
+---
+<BaseLayout title={`${title} · 阿秋`}>
+  <main class="mx-auto max-w-2xl px-5 py-12">
+    <a href="/writing" class="text-sm text-neutral-400 hover:text-ink">← 返回写作</a>
+    <h1 class="mt-4 text-3xl font-black leading-snug">{title}</h1>
+    <p class="mt-2 text-sm text-neutral-400">{meta}</p>
+    <article class="prose-content mt-8 leading-8 text-neutral-800 [&>h2]:mt-8 [&>h2]:text-xl [&>h2]:font-bold [&>p]:mt-4">
+      <slot />
+    </article>
+  </main>
+</BaseLayout>

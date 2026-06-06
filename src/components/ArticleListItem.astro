@@ -1,0 +1,13 @@
+---
+interface Props { href: string; title: string; summary?: string; meta: string; tag?: string; featured?: boolean; }
+const { href, title, summary, meta, tag, featured = false } = Astro.props;
+---
+<a href={href} class:list={['block py-4 transition hover:opacity-80', !featured && 'border-b border-neutral-100']}>
+  {featured && <div class="text-xs font-bold text-write">★ 置顶 / 代表作</div>}
+  <div class="flex items-baseline justify-between gap-4">
+    <h3 class:list={[featured ? 'text-xl' : 'text-base', 'font-bold']}>{title}</h3>
+    <span class="shrink-0 text-xs text-neutral-400">{meta}</span>
+  </div>
+  {summary && <p class="mt-1 text-sm text-neutral-600">{summary}</p>}
+  {tag && <span class="mt-1 inline-block text-xs text-neutral-400">#{tag}</span>}
+</a>
