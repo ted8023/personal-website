@@ -1,0 +1,10 @@
+---
+interface Props { icon: string; title: string; }
+const { icon, title } = Astro.props;
+---
+<section class="rounded-2xl border border-neutral-200 p-5 transition hover:shadow-md hover:-translate-y-0.5">
+  <h2 class="text-lg font-extrabold">{icon} {title}</h2>
+  <div class="mt-3 text-sm text-neutral-700 space-y-1">
+    <slot />
+  </div>
+</section>

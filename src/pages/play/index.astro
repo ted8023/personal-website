@@ -1,0 +1,33 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PlayModule from '../../components/PlayModule.astro';
+import { play } from '../../data/play';
+const stars = (n: number) => '★'.repeat(n) + '☆'.repeat(5 - n);
+---
+<BaseLayout title="玩 / 兴趣 · 阿秋">
+  <main class="mx-auto max-w-5xl px-5 py-12">
+    <h1 class="text-3xl font-black">不务正业的那一面 <span class="text-play">▸</span></h1>
+    <div class="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <PlayModule icon="🎬" title="电影">
+        {play.movies.map((m) => (
+          <div class="border-b border-neutral-100 pb-2">
+            <div class="font-semibold">{m.title} <span class="text-play">{stars(m.rating)}</span></div>
+            <div class="text-neutral-500 text-xs">{m.note}</div>
+          </div>
+        ))}
+      </PlayModule>
+
+      <PlayModule icon="🐺" title="狼人杀">
+        <div>爱用身份：<b>{play.werewolf.role}</b></div>
+        <div>风格：{play.werewolf.style}</div>
+        <div class="mt-1 text-neutral-500 text-xs">名场面：{play.werewolf.highlights.join('；')}</div>
+      </PlayModule>
+
+      <PlayModule icon="🎭" title="剧本杀">
+        <div>玩过：{play.scriptMurder.played.join('、')}</div>
+        <div>私藏推荐：{play.scriptMurder.recommend.join('、')}</div>
+        <div class="text-neutral-500 text-xs">想开的本：{play.scriptMurder.wishlist.join('、')}</div>
+      </PlayModule>
+    </div>
+  </main>
+</BaseLayout>
