@@ -1,0 +1,27 @@
+---
+import type { Section } from '../data/sections';
+export interface Preview { title: string; meta?: string; }
+interface Props { section: Section; previews: Preview[]; large?: boolean; }
+const { section, previews, large = false } = Astro.props;
+---
+<a
+  href={`/${section.slug}`}
+  style={`background-color: var(--color-${section.color})`}
+  class:list={[
+    'group relative flex flex-col justify-between rounded-2xl p-5 text-white overflow-hidden',
+    'transition-transform duration-200 hover:-translate-y-1 hover:shadow-xl',
+    large ? 'sm:col-span-2 min-h-44' : 'min-h-36',
+  ]}
+>
+  <div>
+    <div class="text-xs tracking-widest opacity-80">{section.en} ▸</div>
+    <div class="mt-1 text-xl font-extrabold">{section.label}</div>
+    <div class="text-sm opacity-90">{section.tagline}</div>
+  </div>
+  <ul class="mt-3 space-y-1 text-sm opacity-95">
+    {previews.map((p) => (
+      <li class="truncate">· {p.title}{p.meta && <span class="opacity-70"> · {p.meta}</span>}</li>
+    ))}
+  </ul>
+  <span class="mt-3 text-xs font-semibold opacity-90 group-hover:opacity-100">查看全部 ▸</span>
+</a>
