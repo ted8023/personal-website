@@ -1,0 +1,55 @@
+---
+export interface ThoughtItem { date: Date; tags: string[]; body: string; }
+interface Props { title: string; color: string; items: ThoughtItem[]; }
+const { title, color, items } = Astro.props;
+const allTags = ['all', ...new Set(items.flatMap((i) => i.tags))];
+const fmt = (d: Date) => `${d.getFullYear()}·${String(d.getMonth() + 1).padStart(2, '0')}·${String(d.getDate()).padStart(2, '0')}`;
+---
+<main class="mx-auto max-w-2xl px-5 py-12">
+  <h1 class="text-3xl font-black">{title} <span style={`color: var(--color-${color})`}>▸</span></h1>
+  <div class="mt-5 flex flex-wrap gap-2 text-sm" id="tag-bar">
+    {allTags.map((t) => (
+      <button
+        data-filter={t}
+        style={t === 'all' ? `background-color: var(--color-${color}); border-color: var(--color-${color})` : ''}
+        class:list={['tag-chip rounded-full px-3 py-1 border', t === 'all' ? 'text-white' : 'border-neutral-300 text-neutral-600']}
+      >{t === 'all' ? '全部' : t}</button>
+    ))}
+  </div>
+  <div id="stream" class="mt-8 space-y-6">
+    {items.map((i) => (
+      <div class="thought-row pl-4" data-tags={JSON.stringify(i.tags)} style={`border-left: 2px solid var(--color-${color})`}>
+        <div class="text-xs text-neutral-400">{fmt(i.date)} · {i.tags.join(' ')}</div>
+        <p class="mt-1 leading-7">{i.body}</p>
+      </div>
+    ))}
+  </div>
+</main>
+
+<script is:inline define:vars={{ color }}>
+  // 把主题色传给客户端脚本（用于切换激活 chip 的样式）
+  window.__streamColor = color;
+</script>
+<script>
+  import { matchesFilter } from '../lib/filter';
+  const color: string = (window as any).__streamColor;
+  const bar = document.getElementById('tag-bar');
+  const rows = Array.from(document.querySelectorAll<HTMLElement>('.thought-row'));
+  bar?.addEventListener('click', (e) => {
+    const btn = (e.target as HTMLElement).closest<HTMLElement>('.tag-chip');
+    if (!btn) return;
+    const active = btn.dataset.filter ?? 'all';
+    bar.querySelectorAll<HTMLElement>('.tag-chip').forEach((b) => {
+      const on = b === btn;
+      b.style.backgroundColor = on ? `var(--color-${color})` : '';
+      b.style.borderColor = on ? `var(--color-${color})` : '';
+      b.classList.toggle('text-white', on);
+      b.classList.toggle('text-neutral-600', !on);
+      b.classList.toggle('border-neutral-300', !on);
+    });
+    rows.forEach((r) => {
+      const tags: string[] = JSON.parse(r.dataset.tags ?? '[]');
+      r.style.display = matchesFilter(tags, active) ? '' : 'none';
+    });
+  });
+</script>

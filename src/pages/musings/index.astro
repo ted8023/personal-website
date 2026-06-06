@@ -1,0 +1,12 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ThoughtStream from '../../components/ThoughtStream.astro';
+import { getCollection } from 'astro:content';
+import { sortByDateDesc } from '../../lib/sort';
+
+const entries = sortByDateDesc(await getCollection('musings'), (e) => e.data.date);
+const items = entries.map((e) => ({ date: e.data.date, tags: e.data.tags, body: e.body ?? '' }));
+---
+<BaseLayout title="哲思随笔 · 阿秋">
+  <ThoughtStream title="哲思随笔" color="muse" items={items} />
+</BaseLayout>
