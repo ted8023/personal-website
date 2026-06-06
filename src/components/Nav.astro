@@ -1,0 +1,19 @@
+---
+import { sections } from '../data/sections';
+import { site } from '../data/site';
+const path = Astro.url.pathname;
+---
+<nav class="sticky top-0 z-50 bg-white/85 backdrop-blur border-b border-neutral-100">
+  <div class="mx-auto max-w-5xl px-5 h-14 flex items-center justify-between">
+    <a href="/" class="font-extrabold text-lg">{site.name}<span class="text-play">.</span></a>
+    <div class="flex gap-4 text-sm text-neutral-600">
+      {sections.map((s) => (
+        <a
+          href={`/${s.slug}`}
+          class:list={['hover:text-ink transition-colors', path.startsWith(`/${s.slug}`) && 'text-ink font-semibold']}
+        >{s.label}</a>
+      ))}
+      <a href="/about" class:list={['hover:text-ink transition-colors', path.startsWith('/about') && 'text-ink font-semibold']}>关于</a>
+    </div>
+  </div>
+</nav>

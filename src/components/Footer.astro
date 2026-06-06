@@ -1,0 +1,13 @@
+---
+import { site } from '../data/site';
+---
+<footer class="mt-24 border-t border-neutral-100">
+  <div class="mx-auto max-w-5xl px-5 py-10 flex flex-wrap items-center justify-between gap-4 text-sm text-neutral-500">
+    <span>© {new Date().getFullYear()} {site.name}</span>
+    <div class="flex gap-4">
+      {site.contact.map((c) => (
+        <a href={c.href} class="hover:text-ink transition-colors">{c.label}</a>
+      ))}
+    </div>
+  </div>
+</footer>
