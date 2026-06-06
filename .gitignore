@@ -1,0 +1,17 @@
+# Brainstorming visual companion artifacts
+.superpowers/
+
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+.astro/
+
+# Env & local
+.env
+.env.*
+.DS_Store
+
+# Logs
+*.log
