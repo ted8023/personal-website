@@ -1,0 +1,14 @@
+@import "tailwindcss";
+
+@theme {
+  --color-ink: #111111;
+  --color-build: #2563eb;
+  --color-write: #f59e0b;
+  --color-think: #10b981;
+  --color-muse: #7c3aed;
+  --color-play: #ec4899;
+  --font-sans: "PingFang SC", "Microsoft YaHei", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+html { scroll-behavior: smooth; }
+body { font-family: var(--font-sans); }
