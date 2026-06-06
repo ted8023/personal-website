@@ -13,12 +13,149 @@ const { title, description } = Astro.props;
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet" />
     <title>{title ?? site.title}</title>
     <meta name="description" content={description ?? site.description} />
   </head>
-  <body class="bg-white text-ink antialiased">
-    <Nav />
-    <slot />
-    <Footer />
+  <body>
+    <div class="site-wrap">
+      <Nav />
+      <slot />
+      <Footer />
+    </div>
+
+    <!-- Custom cursor elements -->
+    <div class="cursor-dot" aria-hidden="true"></div>
+    <div class="cursor-ring" aria-hidden="true"></div>
+
+    <script is:inline>
+      /* ---------- Theme persistence ---------- */
+      (function () {
+        const saved = localStorage.getItem('aqiu-theme');
+        if (saved) document.documentElement.setAttribute('data-theme', saved);
+      })();
+      window.toggleTheme = function () {
+        const root = document.documentElement;
+        const next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+        root.setAttribute('data-theme', next);
+        localStorage.setItem('aqiu-theme', next);
+      };
+    </script>
+
+    <script>
+      /* ---------- Custom cursor ---------- */
+      const fine = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+      if (fine) {
+        const dot = document.querySelector('.cursor-dot') as HTMLElement;
+        const ring = document.querySelector('.cursor-ring') as HTMLElement;
+        if (dot && ring) {
+          let mx = innerWidth / 2, my = innerHeight / 2, rx = mx, ry = my;
+          addEventListener('mousemove', e => {
+            mx = e.clientX; my = e.clientY;
+            dot.style.transform = `translate(${mx}px,${my}px) translate(-50%,-50%)`;
+          });
+          (function loop() {
+            rx += (mx - rx) * 0.18; ry += (my - ry) * 0.18;
+            ring.style.transform = `translate(${rx}px,${ry}px) translate(-50%,-50%)`;
+            requestAnimationFrame(loop);
+          })();
+          const hotSel = 'a,button,.bento-cell,.theme-btn,[data-hot]';
+          addEventListener('mouseover', e => { if ((e.target as Element).closest(hotSel)) ring.classList.add('hot'); });
+          addEventListener('mouseout',  e => { if ((e.target as Element).closest(hotSel)) ring.classList.remove('hot'); });
+        }
+      }
+
+      /* ---------- Scroll reveal ---------- */
+      const io = new IntersectionObserver(ents => {
+        ents.forEach(en => { if (en.isIntersecting) { en.target.classList.add('in'); io.unobserve(en.target); } });
+      }, { threshold: 0.12, rootMargin: '0px 0px -8% 0px' });
+
+      function inView(el: Element) {
+        const r = el.getBoundingClientRect();
+        return r.top < (innerHeight || 800) * 0.96 && r.bottom > 0;
+      }
+      function armReveals() {
+        document.querySelectorAll('.reveal:not(.in)').forEach((el) => {
+          const htmlEl = el as HTMLElement;
+          if (htmlEl.dataset.delay) htmlEl.style.transitionDelay = htmlEl.dataset.delay + 'ms';
+          io.observe(el);
+          if (inView(el)) requestAnimationFrame(() => { el.classList.add('in'); io.unobserve(el); });
+        });
+      }
+      document.addEventListener('DOMContentLoaded', armReveals);
+      if (document.readyState !== 'loading') armReveals();
+      setTimeout(() => document.querySelectorAll('.reveal:not(.in)').forEach(el => el.classList.add('in')), 1000);
+
+      /* ---------- Konami Easter egg ---------- */
+      const seq = ['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a'];
+      let pos = 0;
+      addEventListener('keydown', e => {
+        const k = e.key.length === 1 ? e.key.toLowerCase() : e.key;
+        pos = (k === seq[pos] || k === seq[pos]?.toLowerCase()) ? pos + 1 : (k === seq[0] ? 1 : 0);
+        if (pos === seq.length) { pos = 0; party(); }
+      });
+
+      function party() {
+        const colors = ['#2D55FF','#FF5A14','#00B85C','#8A38FF','#FF2E86'];
+        const words = ['做','写','想','玩','✦','秋','!'];
+        for (let i = 0; i < 90; i++) {
+          const p = document.createElement('div');
+          const isWord = Math.random() < 0.3;
+          p.textContent = isWord ? words[(Math.random()*words.length)|0] : '';
+          const c = colors[(Math.random()*colors.length)|0];
+          Object.assign(p.style, {
+            position:'fixed', zIndex:'99999',
+            left:(50 + (Math.random()-.5)*20) + 'vw', top:'-8vh',
+            width: isWord ? 'auto' : (8 + Math.random()*14) + 'px',
+            height: isWord ? 'auto' : (8 + Math.random()*14) + 'px',
+            background: isWord ? 'transparent' : c, color: c,
+            fontFamily:'Noto Sans SC, sans-serif', fontWeight:'900',
+            fontSize: (16+Math.random()*26)+'px',
+            borderRadius: Math.random() < .5 ? '50%' : '3px',
+            pointerEvents:'none',
+          });
+          document.body.appendChild(p);
+          const dx = (Math.random()-.5)*80, dur = 1400 + Math.random()*1400, rot = (Math.random()-.5)*1080;
+          p.animate(
+            [{ transform:'translate(0,0) rotate(0)', opacity:'1' },
+             { transform:`translate(${dx}vw,118vh) rotate(${rot}deg)`, opacity:'1' }],
+            { duration: dur, easing: 'cubic-bezier(.3,.6,.4,1)' }
+          ).onfinish = () => p.remove();
+        }
+        showToast('↑↑↓↓←→←→ B A — 你发现了派对模式 🎉');
+      }
+
+      /* ---------- Toast ---------- */
+      let toastEl: HTMLElement | null = null;
+      function showToast(msg: string) {
+        if (!toastEl) {
+          toastEl = document.createElement('div');
+          Object.assign(toastEl.style, {
+            position:'fixed', left:'50%', bottom:'28px',
+            transform:'translateX(-50%) translateY(20px)',
+            background:'var(--ink)', color:'var(--paper)',
+            padding:'12px 20px', borderRadius:'100px',
+            fontFamily:'Noto Sans SC, sans-serif', fontWeight:'500', fontSize:'14px',
+            zIndex:'100000', opacity:'0',
+            transition:'opacity .3s, transform .4s cubic-bezier(.2,.9,.25,1)',
+            boxShadow:'0 10px 30px rgba(0,0,0,.18)',
+            pointerEvents:'none', maxWidth:'86vw', textAlign:'center',
+          });
+          document.body.appendChild(toastEl);
+        }
+        toastEl.textContent = msg;
+        requestAnimationFrame(() => {
+          toastEl!.style.opacity = '1';
+          toastEl!.style.transform = 'translateX(-50%) translateY(0)';
+        });
+        clearTimeout((toastEl as any)._t);
+        (toastEl as any)._t = setTimeout(() => {
+          toastEl!.style.opacity = '0';
+          toastEl!.style.transform = 'translateX(-50%) translateY(20px)';
+        }, 2600);
+      }
+    </script>
   </body>
 </html>

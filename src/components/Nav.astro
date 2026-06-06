@@ -1,19 +1,20 @@
 ---
 import { sections } from '../data/sections';
-import { site } from '../data/site';
 const path = Astro.url.pathname;
 ---
-<nav class="sticky top-0 z-50 bg-white/85 backdrop-blur border-b border-neutral-100">
-  <div class="mx-auto max-w-5xl px-5 h-14 flex items-center justify-between">
-    <a href="/" class="font-extrabold text-lg">{site.name}<span class="text-play">.</span></a>
-    <div class="flex gap-2 sm:gap-4 text-xs sm:text-sm text-neutral-600">
-      {sections.map((s) => (
-        <a
-          href={`/${s.slug}`}
-          class:list={['hover:text-ink transition-colors', path.startsWith(`/${s.slug}`) && 'text-ink font-semibold']}
-        >{s.label}</a>
-      ))}
-      <a href="/about" class:list={['hover:text-ink transition-colors', path.startsWith('/about') && 'text-ink font-semibold']}>关于</a>
-    </div>
+<nav class="site-nav">
+  <a class="brand" href="/">
+    <span class="mark">秋</span>
+    <span>阿秋<span class="en-label">&nbsp;/ Aqiu</span></span>
+  </a>
+  <div class="nav-links">
+    {sections.map((s) => (
+      <a
+        href={`/${s.slug}`}
+        class:list={[path.startsWith(`/${s.slug}`) && 'active', s.slug === 'thoughts' && 'hide-sm', s.slug === 'musings' && 'hide-sm']}
+      >{s.label}</a>
+    ))}
+    <a href="/about" class:list={[path.startsWith('/about') && 'active']}>关于</a>
+    <button class="theme-btn" onclick="toggleTheme()" aria-label="切换深浅色">◐</button>
   </div>
 </nav>

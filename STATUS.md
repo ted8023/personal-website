@@ -2,7 +2,9 @@
 
 > **给新会话读的交接文件。** 读完这份文档，你就能理解这个项目的全貌，并继续维护或扩展它。
 >
-> 最后更新：2026-06-06 | 当前阶段：v1 实现完成，已推送 GitHub，Vercel 部署也已完成
+> 最后更新：2026-06-07 | 当前阶段：v1 已上线 Vercel，设计系统按 claude.ai/design 重构完成
+
+**线上地址：** https://personal-website-wheat-gamma-81.vercel.app/
 
 ---
 
@@ -38,8 +40,8 @@ GitHub: `https://github.com/ted8023/personal-website`
 
 ### ⏳ 待完成
 
-- [ ] **Vercel 部署**：去 [vercel.com/new](https://vercel.com/new) 导入 `ted8023/personal-website`，框架自动识别 Astro，点 Deploy 即可。
-- [ ] **部署后**：把 `astro.config.mjs` 里的 `site: 'https://example.vercel.app'` 改成真实的 Vercel 域名，git push。
+- [x] **Vercel 部署**：已上线 https://personal-website-wheat-gamma-81.vercel.app/
+- [x] **部署后**：`astro.config.mjs` 的 `site` 已改为真实 Vercel 域名。
 - [ ] **真实内容填充**：把 `src/content/` 和 `src/data/` 里的占位内容替换成阿秋自己的（见第五部分）。
 - [ ] **个人信息更新**：`src/data/site.ts` 里的邮箱/GitHub/小红书链接改为真实地址。
 

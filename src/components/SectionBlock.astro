@@ -1,27 +1,33 @@
 ---
 import type { Section } from '../data/sections';
 export interface Preview { title: string; meta?: string; }
-interface Props { section: Section; previews: Preview[]; large?: boolean; }
-const { section, previews, large = false } = Astro.props;
+interface Props { section: Section; previews: Preview[]; large?: boolean; delay?: number; }
+const { section, previews, delay } = Astro.props;
+
+const ghostLetter = section.en[0];
+const cellClass = `c-${section.color}`;
 ---
 <a
   href={`/${section.slug}`}
-  style={`background-color: var(--color-${section.color})`}
-  class:list={[
-    'group relative flex flex-col justify-between rounded-2xl p-5 text-white overflow-hidden',
-    'transition-transform duration-200 hover:-translate-y-1 hover:shadow-xl',
-    large ? 'sm:col-span-2 min-h-44' : 'min-h-36',
-  ]}
+  class:list={['bento-cell reveal', cellClass]}
+  data-hot
+  data-delay={delay}
 >
-  <div>
-    <div class="text-xs tracking-widest opacity-80">{section.en} ▸</div>
-    <div class="mt-1 text-xl font-extrabold">{section.label}</div>
-    <div class="text-sm opacity-90">{section.tagline}</div>
+  <span class="cell-ghost" aria-hidden="true">{ghostLetter}</span>
+  <div class="cell-head">
+    <div>
+      <div class="cell-en">{section.en}</div>
+      <div class="cell-cn">{section.label}</div>
+    </div>
+    <span class="cell-arrow" aria-hidden="true">→</span>
   </div>
-  <ul class="mt-3 space-y-1 text-sm opacity-95">
-    {previews.map((p) => (
-      <li class="truncate">· {p.title}{p.meta && <span class="opacity-70"> · {p.meta}</span>}</li>
+  <div class="cell-previews">
+    {previews.map((p, i) => (
+      <div class="pv">
+        <span class="pv-idx">0{i + 1}</span>
+        <span class="pv-t">{p.title}</span>
+        {p.meta && <span class="pv-meta">{p.meta}</span>}
+      </div>
     ))}
-  </ul>
-  <span class="mt-3 text-xs font-semibold opacity-90 group-hover:opacity-100">查看全部 ▸</span>
+  </div>
 </a>

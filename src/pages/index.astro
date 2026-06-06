@@ -15,18 +15,28 @@ const musings = sortByDateDesc(await getCollection('musings'), (e) => e.data.dat
 const previewsBySlug: Record<string, Preview[]> = {
   products: products.slice(0, 3).map((e) => ({ title: e.data.title, meta: e.data.status })),
   writing: writing.slice(0, 2).map((e) => ({ title: e.data.title })),
-  thoughts: thoughts.slice(0, 2).map((e) => ({ title: e.body?.slice(0, 18) ?? e.data.title ?? '' })),
-  musings: musings.slice(0, 2).map((e) => ({ title: e.body?.slice(0, 18) ?? e.data.title ?? '' })),
+  thoughts: thoughts.slice(0, 2).map((e) => ({ title: e.body?.slice(0, 20) ?? e.data.title ?? '' })),
+  musings: musings.slice(0, 2).map((e) => ({ title: e.body?.slice(0, 20) ?? e.data.title ?? '' })),
   play: [{ title: '最近在玩：年轮（剧本杀）' }, { title: '最近在看：银翼杀手 2049' }],
 };
 ---
 <BaseLayout>
-  <main class="mx-auto max-w-5xl px-5">
-    <HeroRotator greeting={site.hero.greeting} lead={site.hero.lead} phrases={site.hero.phrases} />
-    <section class="grid grid-cols-1 sm:grid-cols-3 gap-3 pb-16">
-      {sections.map((s) => (
-        <SectionBlock section={s} previews={previewsBySlug[s.slug]} large={s.slug === 'products'} />
+  <HeroRotator greeting={site.hero.greeting} lead={site.hero.lead} phrases={site.hero.phrases} />
+
+  <section>
+    <div class="section-label">
+      <h2>挑一块进去</h2>
+      <span class="hint">hover 看看 · 共 5 个房间</span>
+    </div>
+    <div class="bento" style="padding-bottom: clamp(40px, 8vw, 100px);">
+      {sections.map((s, i) => (
+        <SectionBlock
+          section={s}
+          previews={previewsBySlug[s.slug] ?? []}
+          large={s.slug === 'products'}
+          delay={i * 60}
+        />
       ))}
-    </section>
-  </main>
+    </div>
+  </section>
 </BaseLayout>
