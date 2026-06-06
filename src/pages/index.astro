@@ -16,7 +16,7 @@ const previewsBySlug: Record<string, Preview[]> = {
   writing: writing.slice(0, 2).map((e) => ({ title: e.data.title })),
   thoughts: thoughts.slice(0, 2).map((e) => ({ title: e.body?.slice(0, 18) ?? e.data.title ?? '' })),
   musings: musings.slice(0, 2).map((e) => ({ title: e.body?.slice(0, 18) ?? e.data.title ?? '' })),
-  play: [{ title: '电影 · 狼人杀 · 剧本杀' }],
+  play: [],
 };
 ---
 <BaseLayout>
