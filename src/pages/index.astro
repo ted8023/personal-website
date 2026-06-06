@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import SectionBlock, { type Preview } from '../components/SectionBlock.astro';
+import HeroRotator from '../components/HeroRotator.astro';
 import { sections } from '../data/sections';
 import { site } from '../data/site';
 import { getCollection } from 'astro:content';
@@ -21,10 +22,7 @@ const previewsBySlug: Record<string, Preview[]> = {
 ---
 <BaseLayout>
   <main class="mx-auto max-w-5xl px-5">
-    <section class="py-16">
-      <p class="text-sm tracking-widest text-neutral-400">{site.hero.greeting}</p>
-      <h1 class="mt-2 text-4xl sm:text-5xl font-black">嗨，我是阿秋。</h1>
-    </section>
+    <HeroRotator greeting={site.hero.greeting} lead={site.hero.lead} phrases={site.hero.phrases} />
     <section class="grid grid-cols-1 sm:grid-cols-3 gap-3 pb-16">
       {sections.map((s) => (
         <SectionBlock section={s} previews={previewsBySlug[s.slug]} large={s.slug === 'products'} />

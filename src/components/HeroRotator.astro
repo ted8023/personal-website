@@ -1,0 +1,27 @@
+---
+interface Props { greeting: string; lead: string; phrases: string[]; }
+const { greeting, lead, phrases } = Astro.props;
+---
+<section class="py-20">
+  <p class="text-sm tracking-widest text-neutral-400">{greeting}</p>
+  <h1 class="mt-3 text-5xl sm:text-6xl font-black leading-tight">
+    {lead}<span
+      id="hero-rot"
+      data-phrases={JSON.stringify(phrases)}
+      class="bg-gradient-to-r from-build via-muse to-play bg-clip-text text-transparent"
+    >{phrases[0]}</span><span class="inline-block w-1 h-10 sm:h-12 align-[-6px] ml-1 bg-ink animate-pulse"></span>
+  </h1>
+</section>
+
+<script>
+  import { nextIndex } from '../lib/rotator';
+  const el = document.getElementById('hero-rot');
+  if (el) {
+    const phrases: string[] = JSON.parse(el.dataset.phrases ?? '[]');
+    let i = 0;
+    setInterval(() => {
+      i = nextIndex(i, phrases.length);
+      el.textContent = phrases[i];
+    }, 2200);
+  }
+</script>
