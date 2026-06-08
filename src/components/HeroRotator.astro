@@ -1,11 +1,11 @@
 ---
-interface Props { greeting: string; lead: string; phrases: string[]; }
-const { lead, phrases } = Astro.props;
+interface Props { lead: string; phrases: string[]; status: string; sub: string; cta: { primary: string; secondary: string }; }
+const { lead, phrases, status, sub, cta } = Astro.props;
 ---
 <header class="hero">
   <div class="hero-top">
     <span class="dot" aria-hidden="true"></span>
-    <span>此刻在线 · 一个爱折腾的产品人</span>
+    <span set:html={status}></span>
   </div>
   <h1>
     <span class="me">{lead}</span><span
@@ -13,12 +13,10 @@ const { lead, phrases } = Astro.props;
       data-words={JSON.stringify(phrases)}
     ></span>
   </h1>
-  <p class="hero-sub">
-    你好，我是阿秋。做产品的时候认真到偏执，写东西的时候放松到跑题，剩下的时间用来<b>瞎想和瞎玩</b>。这张名片把这几件事一次摊开给你看。
-  </p>
+  <p class="hero-sub" set:html={sub}></p>
   <div class="hero-cta">
-    <a class="btn-solid" href="/products" data-hot>看我做的东西 <span aria-hidden="true">→</span></a>
-    <a class="btn-ghost" href="/about" data-hot>关于我（有彩蛋）</a>
+    <a class="btn-solid" href="/products" data-hot set:html={cta.primary}></a>
+    <a class="btn-ghost" href="/about" data-hot>{cta.secondary}</a>
   </div>
 </header>
 

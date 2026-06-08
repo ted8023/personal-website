@@ -21,7 +21,13 @@ const previewsBySlug: Record<string, Preview[]> = {
 };
 ---
 <BaseLayout>
-  <HeroRotator greeting={site.hero.greeting} lead={site.hero.lead} phrases={site.hero.phrases} />
+  <HeroRotator
+    lead={site.hero.lead}
+    phrases={site.hero.phrases}
+    status={site.hero.status}
+    sub={site.hero.sub}
+    cta={site.hero.cta}
+  />
 
   <section>
     <div class="section-label">
