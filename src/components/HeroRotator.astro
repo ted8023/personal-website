@@ -45,11 +45,18 @@ const { lead, phrases, status, sub, cta } = Astro.props;
     tick();
   }
 
-  document.addEventListener('DOMContentLoaded', () => {
-    document.querySelectorAll<HTMLElement>('[data-typer]').forEach(initTyper);
-  });
-  if (document.readyState !== 'loading') {
-    document.querySelectorAll<HTMLElement>('[data-typer]').forEach(initTyper);
+  // 防止重复初始化
+  function startTypers() {
+    document.querySelectorAll<HTMLElement>('[data-typer]:not([data-typer-init])').forEach(el => {
+      el.dataset.typerInit = 'true';
+      initTyper(el);
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', startTypers, { once: true });
+  } else {
+    startTypers();
   }
 </script>
 
