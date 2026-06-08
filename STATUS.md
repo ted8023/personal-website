@@ -2,7 +2,7 @@
 
 > **给新会话读的交接文件。** 读完这份文档，你就能理解这个项目的全貌，并继续维护或扩展它。
 >
-> 最后更新：2026-06-07 | 当前阶段：v1 已上线 Vercel，设计系统按 claude.ai/design 重构完成
+> 最后更新：2026-06-09 | 当前阶段：v2 设计还原完成，子页面全部按第二版设计重写
 
 **线上地址：** https://personal-website-wheat-gamma-81.vercel.app/
 
@@ -22,36 +22,34 @@ GitHub: `https://github.com/ted8023/personal-website`
 
 ## 二、当前状态
 
-### ✅ v1 完成（已提交 GitHub）
+### ✅ v2 完成（已提交 GitHub，Vercel 自动部署中）
 
 | 页面 / 功能 | 路由 | 状态 |
 |---|---|---|
-| 首页 Hero 巨字循环 + 5 bento 色块 | `/` | ✅ |
-| 产品页（类型筛选 + 主打大卡 + 状态标签）| `/products` | ✅ |
-| 写作页（话题筛选 + 置顶代表作）| `/writing` | ✅ |
+| 首页 Hero 巨字循环打字机 + 5 bento 色块 | `/` | ✅ |
+| 产品页（masthead + 卡片网格，进行中/早期实验分区）| `/products` | ✅ v2 |
+| 写作页（masthead + 编号文章列表，阅读时长）| `/writing` | ✅ v2 |
 | 文章详情页（阅读时长估算）| `/writing/[slug]` | ✅ |
-| 行业碎想（时间流 + 标签筛选，绿色）| `/thoughts` | ✅ |
-| 哲思随笔（时间流 + 标签筛选，紫色）| `/musings` | ✅ |
-| 玩 / 兴趣（电影/狼人杀/剧本杀）| `/play` | ✅ |
-| 关于（自述 + 身份卡 3D 翻牌彩蛋）| `/about` | ✅ |
-| 趣味 404（狼人杀风格）| `/404` | ✅ |
+| 行业碎想（masthead + 编号碎想列表，碎想·#N）| `/thoughts` | ✅ v2 |
+| 哲思随笔（masthead + 编号随笔列表，夜·壹/贰）| `/musings` | ✅ v2 |
+| 玩 / 兴趣（masthead + 倾斜卡片网格）| `/play` | ✅ v2 |
+| 关于（渐变标题 + facts chips + 6 张 3D 翻转身份牌 + 联系框）| `/about` | ✅ v2 |
+| 趣味 404（彩色大字 + 可点击吐槽 + 迷你房间导航）| `/404` | ✅ v2 |
 | 纯逻辑单元测试 | `src/lib/*.test.ts` | ✅ 14/14 |
 | 响应式 | 全页面 | ✅ |
 
 ### ⏳ 待完成
 
-- [x] **Vercel 部署**：已上线 https://personal-website-wheat-gamma-81.vercel.app/
-- [x] **部署后**：`astro.config.mjs` 的 `site` 已改为真实 Vercel 域名。
 - [ ] **真实内容填充**：把 `src/content/` 和 `src/data/` 里的占位内容替换成阿秋自己的（见第五部分）。
 - [ ] **个人信息更新**：`src/data/site.ts` 里的邮箱/GitHub/小红书链接改为真实地址。
 
 ### 🔮 v1.5 预留（未实现）
 
-- **命令行彩蛋**：在关于页或全局，敲 `whoami` 等指令唤出隐藏「终端模式」（把早期被否掉的极客风格作为彩蛋）。架构上已预留空间（client-side `<script>` 岛），只需添加 keydown 监听。
+- **命令行彩蛋**：在关于页或全局，敲 `whoami` 等指令唤出隐藏「终端模式」。
 - Open Graph / 社交分享 meta 标签（`og:title`、`og:image` 等）。
-- `ProductCard` 的 `cover` 字段（schema 已定义，组件未渲染截图/封面图）。
+- `ProductCard` 的 `cover` 字段（schema 已定义，卡片未渲染封面图）。
 - 汉堡菜单（移动端 Nav，目前用 `text-xs` 压缩，极窄屏可能溢出）。
-- RSS、评论、访问统计、深色模式、多语言、自定义域名。
+- RSS、评论、访问统计、自定义域名。
 
 ---
 
@@ -66,35 +64,43 @@ Astro 5 (静态站)
 └── 部署: Vercel (astro build → dist/)
 ```
 
+### 关键设计系统（v2）
+
+**CSS 自定义属性设计 token（`src/styles/global.css`）：**
+
+- `--paper` / `--ink` — 背景色和正文色（深色模式下自动切换）
+- `--blue` / `--orange` / `--green` / `--purple` / `--pink` — 五板块品牌色
+- `--on-*` — 对应品牌色的前景色（浅色或深色）
+- `--acc` / `--on-acc` — 当前页面的强调色，由 `body[data-accent="*"]` 触发
+- 深色模式：`html[data-theme="dark"]` + `localStorage('aqiu-theme')`
+
+**子页面强调色系统：**
+
+每个子页面通过 `<BaseLayout accent="blue">` 设置 `body[data-accent="blue"]`，全局 CSS 规则自动设置 `--acc` / `--on-acc`，Masthead 背景色、卡片 chip 色、post-list 编号色等全部跟随。
+
+**全局交互（`BaseLayout.astro` `<script>`）：**
+
+| 功能 | 实现 |
+|---|---|
+| 自定义鼠标 | `.cursor-dot` / `.cursor-ring`，requestAnimationFrame lerp 追踪 |
+| 暗色模式 | `localStorage('aqiu-theme')` + `html[data-theme]` |
+| 滚动入场 | `.reveal` + IntersectionObserver → `.in` 类 |
+| Konami 彩蛋 | ↑↑↓↓←→←→BA → `party()` 全屏礼花 220 粒子 |
+| Toast 提示 | `showToast(msg)` 底部居中弹出 |
+
 ### 关键设计决策
 
-**1. 动态颜色用 `style` 内联，不用 Tailwind 动态类**
+**1. 动态颜色用 CSS var，不用 Tailwind 动态类**
 
-`SectionBlock`、`ThoughtStream` 等组件里颜色是运行时确定的（如 `color="think"`），用：
-```html
-style={`background-color: var(--color-${section.color})`}
-```
-而不是 `class={`bg-${section.color}`}` —— 后者会被 Tailwind v4 的扫描器遗漏（purge 掉）。
+Tailwind v4 会 purge 掉运行时拼接的类名（如 `` `bg-${color}` ``）。动态颜色全用 `style="--c: var(--blue)"` 或 `data-accent` + CSS 规则实现。
 
-**2. 颜色传递到客户端 JS**
+**2. 打字机防重复初始化**
 
-`ThoughtStream.astro` 用 Astro 的 `is:inline define:vars={{ color }}` 把服务端 prop 注入客户端全局变量，再由 ES module script 读取：
-```astro
-<script is:inline define:vars={{ color }}>
-  window.__streamColor = color;
-</script>
-<script>
-  const color: string = (window as any).__streamColor;
-</script>
-```
+HeroRotator.astro 的 `initTyper()` 在执行前检查 `data-typer-init` 属性，防止 Astro module script 的 DOMContentLoaded + 直接执行双触发导致打两遍。
 
 **3. `astro.config.mjs` 有一个 `@ts-ignore`**
 
-`@tailwindcss/vite` 插件与 Astro 内置 Vite 的类型定义有版本冲突，用 `// @ts-ignore` 绕过，运行时完全正常。待上游修复后可移除。
-
-**4. `astro check` 门禁**
-
-每次有变更都应运行 `npm run check`，确保 0 errors。当前通过。
+`@tailwindcss/vite` 插件与 Astro 内置 Vite 的类型定义有版本冲突，用 `// @ts-ignore` 绕过，运行时正常。
 
 ---
 
@@ -102,8 +108,8 @@ style={`background-color: var(--color-${section.color})`}
 
 ```
 personal-site/
-├── astro.config.mjs          Astro 配置（Tailwind vite 插件）
-├── src/styles/global.css     Tailwind @import + @theme 品牌色
+├── astro.config.mjs          Astro 配置（Tailwind vite 插件，site URL）
+├── src/styles/global.css     全站 CSS（@theme token + 所有组件样式）
 ├── src/lib/                  纯逻辑（TDD），4 个模块 + 测试
 │   ├── reading-time.ts       estimateReadingTime(text) → 分钟数
 │   ├── rotator.ts            nextIndex(current, length) → 循环索引
@@ -111,34 +117,33 @@ personal-site/
 │   └── filter.ts             matchesFilter(value, active) → bool
 ├── src/content.config.ts     4 个 content collections 的 schema
 ├── src/content/              Markdown 内容（当前为占位）
-│   ├── products/             type/status/featured/url/tech
-│   ├── writing/              topic/publishDate/featured
-│   ├── thoughts/             date/tags（短碎想）
-│   └── musings/              date/tags（哲思）
+│   ├── products/             type/status/featured/url/tech/order
+│   ├── writing/              topic/publishDate/summary/featured
+│   ├── thoughts/             date/tags（短碎想，一到几句话）
+│   └── musings/              date/tags（哲思随笔，一到几句话）
 ├── src/data/
-│   ├── site.ts               全站文案、hero、about、身份卡、联系方式
-│   ├── sections.ts           5 大板块元数据（slug/label/en/color/tagline）
+│   ├── site.ts               全站文案、hero、about（lede/facts/identityCards）、联系方式
+│   ├── sections.ts           5 大板块元数据（slug/label/en/color/accent/mhCn/mhDesc/mhMeta）
 │   └── play.ts               电影/狼人杀/剧本杀数据
 ├── src/layouts/
-│   ├── BaseLayout.astro      HTML 壳 + Nav + Footer
+│   ├── BaseLayout.astro      HTML 壳 + Nav + Footer + 全局脚本（支持 accent prop）
 │   └── ArticleLayout.astro   长文阅读排版
-├── src/components/           全部 9 个组件（见下）
-└── src/pages/                全部路由（见下）
+├── src/components/
+│   ├── Nav.astro             顶部导航，sticky，当前路由高亮
+│   ├── Footer.astro          页脚，社交链接 pill + Konami 提示
+│   ├── HeroRotator.astro     首页打字机（防重复初始化 guard）
+│   └── SectionBlock.astro    bento 色块（含预览列表，支持 large/delay prop）
+└── src/pages/
+    ├── index.astro           首页（hero + bento 5 色块）
+    ├── about.astro           关于页（渐变标题/facts/6 flip-card/contact-box）
+    ├── 404.astro             404 页（彩色大字/吐槽/迷你导航）
+    ├── products/index.astro  产品页（masthead + card-grid 两分区）
+    ├── writing/index.astro   写作页（masthead + 编号 post-list）
+    ├── writing/[slug].astro  文章详情
+    ├── thoughts/index.astro  碎想页（masthead + 编号列表，碎想·#N）
+    ├── musings/index.astro   随笔页（masthead + 编号列表，夜·壹/贰）
+    └── play/index.astro      玩耍页（masthead + 倾斜卡片网格）
 ```
-
-**组件一览：**
-
-| 组件 | 职责 |
-|---|---|
-| `Nav.astro` | 顶部导航，sticky，当前路由高亮 |
-| `Footer.astro` | 页脚，年份 + 联系方式 |
-| `HeroRotator.astro` | 首页巨字循环（client `<script>` 用 `nextIndex`）|
-| `SectionBlock.astro` | bento 色块（含预览列表），可传 `large` prop 跨 2 列 |
-| `ProductCard.astro` | 产品卡（含 `data-type` 筛选 attr、状态徽章、访问按钮）|
-| `ArticleListItem.astro` | 写作列表项（featured 变体更大）|
-| `ThoughtStream.astro` | 碎想/哲思共用流（color prop 控制主题色）|
-| `PlayModule.astro` | 兴趣模块卡（slot 接受任意内容）|
-| `IdentityCard.astro` | 🦉 CSS 3D 翻牌身份卡（aria-pressed 控制）|
 
 ---
 
@@ -152,12 +157,12 @@ title: 产品名
 summary: 一句话介绍
 type: 网站          # 或 小程序 / App
 status: 上线中      # 或 开发中 / 已下线
-url: https://...   # 可选
+url: https://...   # 可选，有 url 才会渲染访问箭头
 tech: ["Astro", "xxx"]
-featured: false    # 只有一个设 true（主打作品）
+featured: false    # 只有一个设 true（在首页 bento 预览中置顶）
 order: 4           # 控制排序，数字小的在前
 ---
-正文（可选，详细介绍）
+正文（可选，产品详情页用）
 ```
 
 **新增长文：**
@@ -166,10 +171,10 @@ order: 4           # 控制排序，数字小的在前
 ---
 title: 文章标题
 summary: 摘要（写作列表页显示）
-topic: 需求分析     # 用于话题筛选，与其他文章保持一致
+topic: 需求分析     # 用于话题分类
 publishDate: 2026-06-10
 tags: ["方法论"]
-featured: false    # 只有一篇设 true（置顶代表作）
+featured: false    # 只有一篇设 true（在首页 bento 预览中置顶）
 ---
 正文 Markdown...
 ```
@@ -179,40 +184,67 @@ featured: false    # 只有一篇设 true（置顶代表作）
 # 新建 src/content/thoughts/2026-06-10-your-thought.md
 ---
 date: 2026-06-10
-tags: ["#AI"]      # 前缀 # 是惯例，用于筛选显示
+tags: ["#AI"]
 ---
-一句话或几句话的想法。
+一句话或几句话的想法。（直接显示为正文，无详情页）
 ```
 
 **新增哲思：** 同上，改到 `src/content/musings/`，标签如 `["#哲学"]`。
 
-**更新个人信息：** 编辑 `src/data/site.ts`（联系方式、自述、身份卡内容）。
+**更新个人信息：** 编辑 `src/data/site.ts`。
+- `hero` — 首页打字机短语、状态行、副文案、CTA 按钮
+- `about.lede` — 关于页正文
+- `about.facts` — 关于页 emoji 事实 chips
+- `identityCards` — 6 张 3D 翻牌（正面 emoji/en，背面角色/描述/配色）
+- `contact` — 邮箱/GitHub/小红书等联系方式
 
-**更新兴趣内容：** 编辑 `src/data/play.ts`（电影/狼人杀/剧本杀数据）。
+**更新玩耍内容：** 编辑 `src/data/play.ts`（电影/狼人杀/剧本杀）。
 
 **发布流程：**
 ```bash
 git add .
 git commit -m "content: 新增xxx"
-git push   # Vercel 自动触发重新部署
+git push   # Vercel 自动触发重新部署（约 1 分钟）
 ```
 
 ---
 
 ## 六、设计规范速查
 
-**品牌色（在 `global.css` @theme 定义，可直接用 Tailwind 工具类）：**
+**品牌色（`global.css` 中 CSS 变量，同时映射到 Tailwind token）：**
 
-| 板块 | Token | 色值 | 常用类 |
+| 板块 | 变量 | 浅色值 | 文字前景 |
 |---|---|---|---|
-| 产品 BUILD | `--color-build` | `#2563eb` | `text-build` `bg-build` `border-build` |
-| 写作 WRITE | `--color-write` | `#f59e0b` | `text-write` `bg-write` |
-| 行业碎想 THINK | `--color-think` | `#10b981` | `text-think` `bg-think` |
-| 哲思随笔 MUSE | `--color-muse` | `#7c3aed` | `text-muse` `bg-muse` |
-| 玩/兴趣 PLAY | `--color-play` | `#ec4899` | `text-play` `bg-play` |
-| 正文 | `--color-ink` | `#111111` | `text-ink` |
+| 产品 BUILD | `--blue` | `#2D55FF` | `--on-blue: #EAF0FF` |
+| 写作 WRITE | `--orange` | `#FF5A14` | `--on-orange: #FFF0E8` |
+| 行业碎想 THINK | `--green` | `#00B85C` | `--on-green: #E6FFF1` |
+| 哲思随笔 MUSE | `--purple` | `#8A38FF` | `--on-purple: #F3EAFF` |
+| 玩/兴趣 PLAY | `--pink` | `#FF2E86` | `--on-pink: #FFE9F2` |
+| 背景 | `--paper` | `#F4F2EC` | — |
+| 正文 | `--ink` | `#1A1810` | — |
 
-**字体：** PingFang SC → Microsoft YaHei → system-ui（中文优先）
+**字体：**
+- 中文：`Noto Sans SC`（Google Fonts，400/500/700/900）
+- 英文/数字：`Space Grotesk`（Google Fonts，400/500/600/700）
+
+**关键 CSS 类（子页面用）：**
+
+| 类名 | 用途 |
+|---|---|
+| `.back` | 子页面返回首页链接 |
+| `.masthead` | 板块顶部彩色 hero 区块 |
+| `.mh-ghost` | Masthead 背景大字（单字母） |
+| `.post-list` / `.post` | 文章/碎想列表 |
+| `.p-num` / `.p-title` / `.p-ex` / `.p-meta` | 列表项各区域 |
+| `.card-grid` / `.card` | 卡片网格 |
+| `.c-bar` / `.c-chip` / `.c-name` / `.c-desc` / `.c-foot` | 卡片内部结构 |
+| `.row-label` | 卡片网格分区标签 |
+| `.card-deck` / `.idcard` | 3D 翻牌卡组 |
+| `.idcard-front` / `.idcard-back` | 翻牌正背面 |
+| `.rc-blue` 等 | 翻牌背面配色（6 种）|
+| `.about-hero` / `.about-lede` / `.facts` / `.fact` | 关于页各元素 |
+| `.contact-box` | 联系区块 |
+| `.nf-wrap` / `.nf-digits` / `.nf-card` / `.nf-cta` / `.nf-mini` | 404 页各元素 |
 
 ---
 
@@ -233,6 +265,8 @@ npm run preview  # 本地预览 dist/
 完整的设计思路和实现计划存在：
 
 - `docs/superpowers/specs/2026-06-06-personal-card-website-design.md` — 完整设计规格（定位、视觉、信息架构、各页面、技术方案）
-- `docs/superpowers/plans/2026-06-06-personal-card-website.md` — 12 个任务的实现计划（已全部执行完成）
+- `docs/superpowers/plans/2026-06-06-personal-card-website.md` — 12 个任务的实现计划
 
-如需了解某个设计决策的来龙去脉，读上面两份文档。
+参考设计源文件（Anthropic Design API）：
+- 第一版设计（首页）：`https://api.anthropic.com/v1/design/h/21tDtLgZuMDhnsA5DUDdqQ`
+- 第二版设计（全站）：`https://api.anthropic.com/v1/design/h/DnlIzMQekTnAN5ugwJKjDQ`
