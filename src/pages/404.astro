@@ -1,11 +1,54 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 ---
-<BaseLayout title="迷路了 · 阿秋">
-  <main class="mx-auto max-w-2xl px-5 py-24 text-center">
-    <div class="text-6xl">🦉</div>
-    <h1 class="mt-4 text-3xl font-black">这页不在场，被刀了。</h1>
-    <p class="mt-3 text-neutral-500">你来到一个不存在的房间（404）。要不回首页重新组局？</p>
-    <a href="/" class="mt-6 inline-block rounded-lg bg-play px-4 py-2 font-semibold text-white hover:opacity-90">回首页 ▸</a>
-  </main>
+<BaseLayout title="404 · 阿秋">
+  <div class="nf-wrap">
+    <!-- Big 404 digits -->
+    <div class="nf-digits" aria-hidden="true">
+      <span class="d">4</span>
+      <span class="d">0</span>
+      <span class="d">4</span>
+    </div>
+
+    <!-- Card with roast message -->
+    <div class="nf-card">
+      <h1>这页不在场</h1>
+      <p>你来到一个不存在的房间。要不回首页重新组局？</p>
+      <p class="roast" id="roast" title="点击换一条">「<b>预言家</b>查了这个 URL，是空的。」</p>
+    </div>
+
+    <!-- CTA -->
+    <div class="nf-cta">
+      <a class="solid" href="/" data-hot>← 回首页</a>
+    </div>
+
+    <!-- Mini section links -->
+    <div class="nf-mini">
+      <a href="/products">BUILD</a>
+      <a href="/writing">WRITE</a>
+      <a href="/thoughts">THINK</a>
+      <a href="/musings">MUSE</a>
+      <a href="/play">PLAY</a>
+    </div>
+  </div>
 </BaseLayout>
+
+<script>
+  const roasts = [
+    '「<b>预言家</b>查了这个 URL，是空的。」',
+    '「这不是你要找的本，换一个。」',
+    '「此处无牌可出，请先回首页摸牌。」',
+    '「连 AI 都不知道这页在哪里。」',
+    '「你走错房间了，这里只有虚空。」',
+    '「404：你比这个页面更真实。」',
+    '「这个 URL 就像我的自律，不存在的。」',
+  ];
+  let cur = 0;
+  const el = document.getElementById('roast');
+  if (el) {
+    el.addEventListener('click', () => {
+      cur = (cur + 1) % roasts.length;
+      el.innerHTML = roasts[cur];
+    });
+  }
+</script>

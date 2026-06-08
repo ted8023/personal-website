@@ -1,26 +1,71 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import IdentityCard from '../components/IdentityCard.astro';
 import { site } from '../data/site';
 ---
 <BaseLayout title="关于 · 阿秋">
-  <main class="mx-auto max-w-3xl px-5 py-12">
-    <h1 class="text-3xl font-black">关于阿秋 <span class="text-neutral-300">▸</span></h1>
-    <div class="mt-8 flex flex-col sm:flex-row gap-8 items-start">
-      <div class="shrink-0"><IdentityCard /></div>
-      <div>
-        <p class="leading-8 text-neutral-800">{site.about.intro}</p>
-        <div class="mt-4 flex flex-wrap gap-2">
-          {site.about.tags.map((t) => (
-            <span class="rounded-full bg-neutral-100 px-3 py-1 text-sm text-neutral-700">{t}</span>
-          ))}
-        </div>
-        <div class="mt-6 flex flex-wrap gap-4 text-sm">
-          {site.contact.map((c) => (
-            <a href={c.href} class="font-semibold text-build hover:underline">{c.label} ↗</a>
-          ))}
+  <!-- About hero -->
+  <div class="about-hero reveal">
+    <p class="kicker">About · 关于</p>
+    <h1>我是<span class="hl">阿秋</span></h1>
+    <p class="about-lede" set:html={site.about.lede}></p>
+    <div class="facts">
+      {site.about.facts.map(f => <span class="fact">{f}</span>)}
+    </div>
+  </div>
+
+  <!-- Identity card deck -->
+  <div class="werewolf-intro reveal">
+    <h2>六张牌</h2>
+    <span class="sub">HOVER TO FLIP · 点击翻转</span>
+  </div>
+  <p class="werewolf-tip">
+    桌游中，每个人都有一张身份牌。这是我的六张，翻牌见真章。
+    <kbd>hover</kbd> / <kbd>tap</kbd> 翻转
+  </p>
+
+  <div class="card-deck">
+    {site.identityCards.map((card, i) => (
+      <div class="idcard reveal" data-delay={i * 80}>
+        <div class="idcard-inner">
+          <!-- Front -->
+          <div class="idcard-face idcard-front">
+            <div class="qmark">{card.emoji}</div>
+            <span class="fr-label">{card.en}</span>
+          </div>
+          <!-- Back -->
+          <div class={`idcard-face idcard-back ${card.rc}`}>
+            <div class="rb-top">
+              <span class="rb-en">{card.en}</span>
+              <span class="rb-emoji">{card.emoji}</span>
+            </div>
+            <div class="rb-role">{card.role}</div>
+            <p class="rb-desc">{card.desc}</p>
+            <div class="rb-foot">AQIU · IDENTITY CARD</div>
+          </div>
         </div>
       </div>
+    ))}
+  </div>
+
+  <!-- Contact box -->
+  <div class="contact-box reveal">
+    <h2>想凑一桌？</h2>
+    <p>如果你也是爱折腾的人——做产品的、写文章的、打狼人杀的——欢迎来聊。</p>
+    <div class="lines">
+      {site.contact.map((c, i) => (
+        <a href={c.href} data-hot>
+          {c.label} {i === 0 ? '✉' : '↗'}
+        </a>
+      ))}
     </div>
-  </main>
+  </div>
 </BaseLayout>
+
+<script>
+  // Tap to toggle flip on touch devices
+  document.querySelectorAll<HTMLElement>('.idcard').forEach(card => {
+    card.addEventListener('click', () => {
+      card.classList.toggle('flipped');
+    });
+  });
+</script>

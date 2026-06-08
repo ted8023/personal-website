@@ -1,58 +1,48 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import ArticleListItem from '../../components/ArticleListItem.astro';
 import { getCollection } from 'astro:content';
-import { sortByDateDesc } from '../../lib/sort';
+import { sections } from '../../data/sections';
 
-const posts = sortByDateDesc(await getCollection('writing'), (e) => e.data.publishDate);
-const featured = posts.find((p) => p.data.featured) ?? posts[0];
-const rest = posts.filter((p) => p.id !== featured?.id);
-const fmt = (d: Date) => `${d.getFullYear()}·${String(d.getMonth() + 1).padStart(2, '0')}`;
-const topics = ['all', ...new Set(posts.map((p) => p.data.topic))];
+const s = sections.find(s => s.slug === 'writing')!;
+
+const raw = await getCollection('writing');
+const posts = raw.sort((a, b) => b.data.publishDate.getTime() - a.data.publishDate.getTime());
+
+const fmtDate = (d: Date) =>
+  `${d.getFullYear()}·${String(d.getMonth() + 1).padStart(2, '0')}`;
+
+// Estimate reading time from body length (~300 chars/min for Chinese)
+const readMin = (body: string) => Math.max(1, Math.round(body.length / 300));
 ---
-<BaseLayout title="写作 · 阿秋">
-  <main class="mx-auto max-w-3xl px-5 py-12">
-    <h1 class="text-3xl font-black">成体系地聊产品 <span class="text-write">▸</span></h1>
-    <div class="mt-5 flex flex-wrap gap-2 text-sm" id="topic-bar">
-      {topics.map((t) => (
-        <button data-filter={t} class:list={['filter-chip rounded-full px-3 py-1 border', t === 'all' ? 'bg-write text-white border-write' : 'border-neutral-300 text-neutral-600']}>
-          {t === 'all' ? '全部' : t}
-        </button>
-      ))}
+<BaseLayout title="写作 · 阿秋" accent={s.accent}>
+  <a class="back" href="/">← 回首页</a>
+
+  <div class="masthead reveal">
+    <span class="mh-ghost" aria-hidden="true">{s.en[0]}</span>
+    <p class="mh-en">{s.en}</p>
+    <h1 class="mh-cn">{s.mhCn}</h1>
+    <p class="mh-desc">{s.mhDesc}</p>
+    <div class="mh-meta">
+      {s.mhMeta.map(t => <span class="tag">{t}</span>)}
     </div>
+  </div>
 
-    {featured && (
-      <div data-topic={featured.data.topic} class="article-row mt-6 rounded-2xl border border-write/30 p-5">
-        <ArticleListItem href={`/writing/${featured.id}`} title={featured.data.title} summary={featured.data.summary} meta={`${fmt(featured.data.publishDate)} · #${featured.data.topic}`} featured={true} />
-      </div>
-    )}
-
-    <div id="list" class="mt-2">
-      {rest.map((p) => (
-        <div data-topic={p.data.topic} class="article-row">
-          <ArticleListItem href={`/writing/${p.id}`} title={p.data.title} meta={`${fmt(p.data.publishDate)} · #${p.data.topic}`} />
+  <nav class="post-list" aria-label="文章列表">
+    {posts.map((p, i) => (
+      <a class="post reveal" href={`/writing/${p.id}`} data-delay={i * 60}>
+        <span class="p-num">{String(posts.length - i).padStart(2, '0')}</span>
+        <div class="p-body">
+          <div class="p-title">
+            {p.data.title}
+            <span class="p-arrow">↗</span>
+          </div>
+          {p.data.summary && <p class="p-ex">{p.data.summary}</p>}
         </div>
-      ))}
-    </div>
-  </main>
+        <span class="p-meta">
+          {fmtDate(p.data.publishDate)}<br />
+          {readMin(p.body ?? '')} 分钟
+        </span>
+      </a>
+    ))}
+  </nav>
 </BaseLayout>
-
-<script>
-  import { matchesFilter } from '../../lib/filter';
-  const bar = document.getElementById('topic-bar');
-  const rows = Array.from(document.querySelectorAll<HTMLElement>('.article-row'));
-  bar?.addEventListener('click', (e) => {
-    const btn = (e.target as HTMLElement).closest<HTMLElement>('.filter-chip');
-    if (!btn) return;
-    const active = btn.dataset.filter ?? 'all';
-    bar.querySelectorAll<HTMLElement>('.filter-chip').forEach((b) => {
-      const on = b === btn;
-      b.classList.toggle('bg-write', on);
-      b.classList.toggle('text-white', on);
-      b.classList.toggle('border-write', on);
-      b.classList.toggle('text-neutral-600', !on);
-      b.classList.toggle('border-neutral-300', !on);
-    });
-    rows.forEach((r) => { r.style.display = matchesFilter(r.dataset.topic ?? '', active) ? '' : 'none'; });
-  });
-</script>

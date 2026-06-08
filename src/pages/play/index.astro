@@ -1,33 +1,62 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import PlayModule from '../../components/PlayModule.astro';
+import { sections } from '../../data/sections';
 import { play } from '../../data/play';
+
+const s = sections.find(s => s.slug === 'play')!;
+
 const stars = (n: number) => '★'.repeat(n) + '☆'.repeat(5 - n);
+
+// Build play cards from existing data
+const playCards = [
+  {
+    emoji: '🎬',
+    chip: '电影',
+    name: '最近在看',
+    desc: play.movies.map(m => `${m.title} ${stars(m.rating)}`).join('　'),
+    foot: play.movies[0]?.note ?? '',
+  },
+  {
+    emoji: '🐺',
+    chip: '狼人杀',
+    name: play.werewolf.role,
+    desc: play.werewolf.style,
+    foot: play.werewolf.highlights.join(' · '),
+  },
+  {
+    emoji: '🎭',
+    chip: '剧本杀',
+    name: '最爱的本',
+    desc: `玩过：${play.scriptMurder.played.join('、')}`,
+    foot: `推荐：${play.scriptMurder.recommend[0] ?? ''}`,
+  },
+];
 ---
-<BaseLayout title="玩 / 兴趣 · 阿秋">
-  <main class="mx-auto max-w-5xl px-5 py-12">
-    <h1 class="text-3xl font-black">不务正业的那一面 <span class="text-play">▸</span></h1>
-    <div class="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-4">
-      <PlayModule icon="🎬" title="电影">
-        {play.movies.map((m) => (
-          <div class="border-b border-neutral-100 pb-2">
-            <div class="font-semibold">{m.title} <span class="text-play">{stars(m.rating)}</span></div>
-            <div class="text-neutral-500 text-xs">{m.note}</div>
-          </div>
-        ))}
-      </PlayModule>
+<BaseLayout title="玩 / 兴趣 · 阿秋" accent={s.accent}>
+  <a class="back" href="/">← 回首页</a>
 
-      <PlayModule icon="🐺" title="狼人杀">
-        <div>爱用身份：<b>{play.werewolf.role}</b></div>
-        <div>风格：{play.werewolf.style}</div>
-        <div class="mt-1 text-neutral-500 text-xs">名场面：{play.werewolf.highlights.join('；')}</div>
-      </PlayModule>
-
-      <PlayModule icon="🎭" title="剧本杀">
-        <div>玩过：{play.scriptMurder.played.join('、')}</div>
-        <div>私藏推荐：{play.scriptMurder.recommend.join('、')}</div>
-        <div class="text-neutral-500 text-xs">想开的本：{play.scriptMurder.wishlist.join('、')}</div>
-      </PlayModule>
+  <div class="masthead reveal">
+    <span class="mh-ghost" aria-hidden="true">{s.en[0]}</span>
+    <p class="mh-en">{s.en}</p>
+    <h1 class="mh-cn">{s.mhCn}</h1>
+    <p class="mh-desc">{s.mhDesc}</p>
+    <div class="mh-meta">
+      {s.mhMeta.map(t => <span class="tag">{t}</span>)}
     </div>
-  </main>
+  </div>
+
+  <div class="card-grid">
+    {playCards.map((c, i) => (
+      <div class="card reveal" data-delay={i * 80}>
+        <div class="c-bar" aria-hidden="true"></div>
+        <div class="c-top">
+          <span class="emoji-big">{c.emoji}</span>
+          <span class="c-chip">{c.chip}</span>
+        </div>
+        <div class="c-name">{c.name}</div>
+        <p class="c-desc">{c.desc}</p>
+        <div class="c-foot">{c.foot}</div>
+      </div>
+    ))}
+  </div>
 </BaseLayout>

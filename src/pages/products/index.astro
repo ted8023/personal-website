@@ -1,59 +1,74 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import ProductCard from '../../components/ProductCard.astro';
 import { getCollection } from 'astro:content';
+import { sections } from '../../data/sections';
 
+const s = sections.find(s => s.slug === 'products')!;
 const all = (await getCollection('products')).sort((a, b) => a.data.order - b.data.order);
-const featured = all.filter((p) => p.data.featured);
-const rest = all.filter((p) => !p.data.featured);
-const ordered = [...featured, ...rest];
-const types = ['all', '网站', '小程序', 'App'];
+const active  = all.filter(p => p.data.status !== '已下线');
+const archive = all.filter(p => p.data.status === '已下线');
 ---
-<BaseLayout title="产品 · 阿秋">
-  <main class="mx-auto max-w-5xl px-5 py-12">
-    <h1 class="text-3xl font-black">我做的东西，能点能玩 <span class="text-build">▸</span></h1>
-    <div class="mt-5 flex flex-wrap gap-2 text-sm" id="filter-bar">
-      {types.map((t) => (
-        <button
-          data-filter={t}
-          class:list={['filter-chip rounded-full px-3 py-1 border', t === 'all' ? 'bg-build text-white border-build' : 'border-neutral-300 text-neutral-600']}
-        >{t === 'all' ? '全部' : t}</button>
-      ))}
-    </div>
-    <div id="grid" class="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
-      {ordered.map((p) => (
-        <ProductCard
-          title={p.data.title}
-          summary={p.data.summary}
-          type={p.data.type}
-          status={p.data.status}
-          url={p.data.url}
-          tech={p.data.tech}
-          featured={p.data.featured}
-        />
-      ))}
-    </div>
-  </main>
-</BaseLayout>
+<BaseLayout title="产品 · 阿秋" accent={s.accent}>
+  <a class="back" href="/">← 回首页</a>
 
-<script>
-  import { matchesFilter } from '../../lib/filter';
-  const bar = document.getElementById('filter-bar');
-  const cards = Array.from(document.querySelectorAll<HTMLElement>('#grid > [data-type]'));
-  bar?.addEventListener('click', (e) => {
-    const btn = (e.target as HTMLElement).closest<HTMLElement>('.filter-chip');
-    if (!btn) return;
-    const active = btn.dataset.filter ?? 'all';
-    bar.querySelectorAll<HTMLElement>('.filter-chip').forEach((b) => {
-      const on = b === btn;
-      b.classList.toggle('bg-build', on);
-      b.classList.toggle('text-white', on);
-      b.classList.toggle('border-build', on);
-      b.classList.toggle('text-neutral-600', !on);
-      b.classList.toggle('border-neutral-300', !on);
-    });
-    cards.forEach((c) => {
-      c.style.display = matchesFilter(c.dataset.type ?? '', active) ? '' : 'none';
-    });
-  });
-</script>
+  <!-- Masthead -->
+  <div class="masthead reveal">
+    <span class="mh-ghost" aria-hidden="true">{s.en[0]}</span>
+    <p class="mh-en">{s.en}</p>
+    <h1 class="mh-cn">{s.mhCn}</h1>
+    <p class="mh-desc">{s.mhDesc}</p>
+    <div class="mh-meta">
+      {s.mhMeta.map(t => <span class="tag">{t}</span>)}
+    </div>
+  </div>
+
+  <!-- Active / featured products -->
+  {active.length > 0 && (
+    <>
+      <p class="row-label">进行中</p>
+      <div class="card-grid">
+        {active.map(p => (
+          <a
+            class="card reveal"
+            href={p.data.url ?? '#'}
+            target={p.data.url ? '_blank' : undefined}
+            rel={p.data.url ? 'noopener noreferrer' : undefined}
+          >
+            <div class="c-bar" aria-hidden="true"></div>
+            <div class="c-top">
+              <span class="c-chip">{p.data.type}</span>
+              <span class="c-status">{p.data.status}</span>
+            </div>
+            <div class="c-name">{p.data.title}</div>
+            <p class="c-desc">{p.data.summary}</p>
+            <div class="c-foot">
+              {p.data.tech.slice(0, 3).join(' · ')}
+              {p.data.url && <span class="arr">→</span>}
+            </div>
+          </a>
+        ))}
+      </div>
+    </>
+  )}
+
+  <!-- Archive -->
+  {archive.length > 0 && (
+    <>
+      <p class="row-label">早期实验</p>
+      <div class="card-grid">
+        {archive.map(p => (
+          <div class="card reveal" style="opacity:.7;">
+            <div class="c-bar" aria-hidden="true"></div>
+            <div class="c-top">
+              <span class="c-chip">{p.data.type}</span>
+              <span class="c-status">{p.data.status}</span>
+            </div>
+            <div class="c-name">{p.data.title}</div>
+            <p class="c-desc">{p.data.summary}</p>
+            <div class="c-foot">{p.data.tech.slice(0, 3).join(' · ')}</div>
+          </div>
+        ))}
+      </div>
+    </>
+  )}
+</BaseLayout>

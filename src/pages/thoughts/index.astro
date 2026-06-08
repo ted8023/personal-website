@@ -1,12 +1,43 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import ThoughtStream from '../../components/ThoughtStream.astro';
 import { getCollection } from 'astro:content';
-import { sortByDateDesc } from '../../lib/sort';
+import { sections } from '../../data/sections';
 
-const entries = sortByDateDesc(await getCollection('thoughts'), (e) => e.data.date);
-const items = entries.map((e) => ({ date: e.data.date, tags: e.data.tags, body: e.body ?? '' }));
+const s = sections.find(s => s.slug === 'thoughts')!;
+
+const raw = await getCollection('thoughts');
+const entries = raw.sort((a, b) =>
+  new Date(b.data.date).getTime() - new Date(a.data.date).getTime()
+);
+
+const total = entries.length;
 ---
-<BaseLayout title="行业碎想 · 阿秋">
-  <ThoughtStream title="行业碎想" color="think" items={items} />
+<BaseLayout title="行业碎想 · 阿秋" accent={s.accent}>
+  <a class="back" href="/">← 回首页</a>
+
+  <div class="masthead reveal">
+    <span class="mh-ghost" aria-hidden="true">{s.en[0]}</span>
+    <p class="mh-en">{s.en}</p>
+    <h1 class="mh-cn">{s.mhCn}</h1>
+    <p class="mh-desc">{s.mhDesc}</p>
+    <div class="mh-meta">
+      {s.mhMeta.map(t => <span class="tag">{t}</span>)}
+    </div>
+  </div>
+
+  <nav class="post-list" aria-label="碎想列表">
+    {entries.map((e, i) => (
+      <div class="post reveal" data-delay={i * 60} style="cursor:default;">
+        <span class="p-num">{String(total - i).padStart(2, '0')}</span>
+        <div class="p-body">
+          <div class="p-title" style="font-size:clamp(16px,2vw,22px);">
+            {e.body?.trim() ?? '（无内容）'}
+          </div>
+        </div>
+        <span class="p-meta">
+          碎想<br />#{total - i}
+        </span>
+      </div>
+    ))}
+  </nav>
 </BaseLayout>
