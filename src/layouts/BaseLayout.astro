@@ -99,29 +99,40 @@ const { title, description } = Astro.props;
 
       function party() {
         const colors = ['#2D55FF','#FF5A14','#00B85C','#8A38FF','#FF2E86'];
-        const words = ['做','写','想','玩','✦','秋','!'];
-        for (let i = 0; i < 90; i++) {
+        const words = ['做','写','想','玩','✦','秋','🎉','!'];
+        const N = 220;
+        for (let i = 0; i < N; i++) {
           const p = document.createElement('div');
-          const isWord = Math.random() < 0.3;
+          const isWord = Math.random() < 0.25;
           p.textContent = isWord ? words[(Math.random()*words.length)|0] : '';
           const c = colors[(Math.random()*colors.length)|0];
+          const size = 10 + Math.random()*20;
+          // 延迟入场，让粒子不全在同一帧喷出，效果更自然
+          const delay = Math.random() * 600;
           Object.assign(p.style, {
             position:'fixed', zIndex:'99999',
-            left:(50 + (Math.random()-.5)*20) + 'vw', top:'-8vh',
-            width: isWord ? 'auto' : (8 + Math.random()*14) + 'px',
-            height: isWord ? 'auto' : (8 + Math.random()*14) + 'px',
+            left: (Math.random() * 100) + 'vw',   // 全宽铺满
+            top: (-5 - Math.random() * 12) + 'vh', // -5vh ~ -17vh 随机高度入场
+            width: isWord ? 'auto' : size + 'px',
+            height: isWord ? 'auto' : size + 'px',
             background: isWord ? 'transparent' : c, color: c,
             fontFamily:'Noto Sans SC, sans-serif', fontWeight:'900',
-            fontSize: (16+Math.random()*26)+'px',
-            borderRadius: Math.random() < .5 ? '50%' : '3px',
+            fontSize: isWord ? (18 + Math.random()*24) + 'px' : '0',
+            borderRadius: Math.random() < .5 ? '50%' : '4px',
             pointerEvents:'none',
+            opacity:'0',
           });
           document.body.appendChild(p);
-          const dx = (Math.random()-.5)*80, dur = 1400 + Math.random()*1400, rot = (Math.random()-.5)*1080;
+          const dx = (Math.random()-.5) * 40;           // ±20vw 横向漂移
+          const dur = 3000 + Math.random() * 2500;      // 3s ~ 5.5s
+          const rot = (Math.random()-.5) * 1440;
           p.animate(
-            [{ transform:'translate(0,0) rotate(0)', opacity:'1' },
-             { transform:`translate(${dx}vw,118vh) rotate(${rot}deg)`, opacity:'1' }],
-            { duration: dur, easing: 'cubic-bezier(.3,.6,.4,1)' }
+            [
+              { transform:'translate(0,0) rotate(0)',                         opacity: 1,   offset: 0    },
+              { transform:`translate(${dx*0.5}vw, 60vh) rotate(${rot*0.5}deg)`, opacity: 1, offset: 0.65 },
+              { transform:`translate(${dx}vw, 115vh) rotate(${rot}deg)`,      opacity: 0,   offset: 1    },
+            ],
+            { duration: dur, delay, easing: 'cubic-bezier(.25,.8,.3,1)', fill: 'forwards' }
           ).onfinish = () => p.remove();
         }
         showToast('↑↑↓↓←→←→ B A — 你发现了派对模式 🎉');
